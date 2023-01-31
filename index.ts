@@ -11,6 +11,14 @@ app.use(express.json()); // MUY IMPORTANTE PARA QUE EXISTA REQ.BODY
 
 app.post("/comercios", async (req, res) => {
   const newComercio = await Comercio.create(req.body);
+  const algoliaResp = await index.saveObject({
+    objectID: newComercio.dataValues.id,
+    nombre: newComercio.dataValues.nombre,
+    _geoloc: {
+      lat: newComercio.dataValues.lat,
+      lng: newComercio.dataValues.lng,
+    },
+  });
   res.json({ newComercio });
 });
 
@@ -25,9 +33,36 @@ app.get("/comercios/:id", async (req, res) => {
   res.json({ foundComercio });
 });
 
+function bodyToIndex(body, id?) {
+  const respuesta: any = {};
+  if (body.nombre) {
+    respuesta.nombre = body.nombre;
+  }
+  if (body.rubro) {
+    respuesta.rubro = body.rubro;
+  }
+  if (body.nombre) {
+    respuesta.nombre = body.nombre;
+  }
+  if (body.lat && body.lng) {
+    respuesta._geoloc = {
+      lat: body.lat,
+      lng: body.lng,
+    };
+  }
+  if (id) {
+    respuesta.objectID = id;
+  }
+  return respuesta;
+}
+
 app.put("/comercios/:id", async (req, res) => {
   const { id } = req.params;
   const updatedComercio = await Comercio.update(req.body, { where: { id } });
+
+  //   const updatedData = await Comercio.findByPk(id);
+  const indexItems = bodyToIndex(req.body, id);
+  const algoliaResp = await index.partialUpdateObject(indexItems);
   res.json({ updatedComercio });
 });
 
