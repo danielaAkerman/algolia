@@ -66,6 +66,15 @@ app.put("/comercios/:id", async (req, res) => {
   res.json({ updatedComercio });
 });
 
+app.get("/comercios-cerca-de", async (req, res) => {
+  const { lat, lng } = req.query;
+  const { hits } = await index.search("", {
+    aroundLatLng: [lat, lng].join(","),
+    aroundRadius: 10000
+  });
+  res.json(hits);
+});
+
 // index
 //   .saveObject({
 //     objectID: "12",
