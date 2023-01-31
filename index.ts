@@ -106,6 +106,9 @@ app.get("/comercios-cerca-de", async (req, res) => {
 //   res.json({});
 // });
 
+// PARA ACCEDER AL FRONT
+app.get("*", express.static(__dirname + "/public"))
+
 app.listen(port, () => {
   console.log("Corriendo en puerto http://localhost:" + port);
 });

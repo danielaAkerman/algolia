@@ -1,4 +1,5 @@
-const MAPBOX_TOKEN = process.env.maptoken
+const MAPBOX_TOKEN =
+  "";
 const mapboxClient = new MapboxClient(MAPBOX_TOKEN);
 
 function initMap() {
@@ -16,7 +17,7 @@ function initSearchForm(callback) {
     mapboxClient.geocodeForward(
       e.target.q.value,
       {
-        country: "ar",
+        // country: "ar",
         autocomplete: true,
         language: "es",
       },
@@ -35,6 +36,15 @@ function initSearchForm(callback) {
     const marker = new mapboxgl.Marker()
       .setLngLat(firstResult.geometry.coordinates)
       .addTo(map);
+    const [lng, lat] = firstResult.geometry.coordinates;
+    fetch("/comercios-cerca-de?lat=" + lat + "&lng=" + lng)
+      .then((res) => res.json())
+      .then((results) => {
+        for (const comercio of results) {
+          const { lat, lng } = comercio._geoloc;
+          new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
+        }
+      });
     map.setCenter(firstResult.geometry.coordinates);
     map.setZoom(14);
   });
